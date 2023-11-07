@@ -1,4 +1,4 @@
-package golox
+package scanner
 
 import (
 	"fmt"
@@ -24,5 +24,5 @@ func NewToken(tokenType TokenType, lexeme string, literal interface{}, line int)
 
 // String method provides a string representation of the Token.
 func (t Token) String() string {
-	return fmt.Sprintf("%s %s %v", t.Type, t.Lexeme, t.Literal)
+	return fmt.Sprintf("%d %s %v", t.Type, t.Lexeme, t.Literal)
 }

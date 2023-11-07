@@ -1,4 +1,4 @@
-package golox
+package scanner
 
 type TokenType int
 

@@ -1,4 +1,4 @@
-package golox
+package main
 
 import (
 	"bufio"
@@ -29,7 +29,7 @@ func runFile(path string) error {
 	}
 
 	run(string(bytes))
-	
+
 	if hadError {
 		os.Exit(65)
 	}
@@ -57,7 +57,8 @@ func runPrompt() {
 
 func run(source string) {
 	reader := strings.NewReader(source)
-	scanner := bufio.NewScanner(reader)		//Golang scanners cannot read strings so must pass a string reader
+	scanner := bufio.NewScanner(reader) //Golang scanners cannot read strings so must pass a string reader
+	// needs changing. This is trying to use "go scanner" but need to use scanner from pkg/scanner
 	tokens := scanner.ScanTokens()
 
 	// For now, just print the tokens
@@ -74,4 +75,3 @@ func report(line int, where string, message string) {
 	fmt.Fprintf(os.Stderr, "[line %d] Error%s: %s\n", line, where, message)
 	hadError = true
 }
-
