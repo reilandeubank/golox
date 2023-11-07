@@ -26,3 +26,7 @@ func NewToken(tokenType TokenType, lexeme string, literal interface{}, line int)
 func (t Token) String() string {
 	return fmt.Sprintf("%d %s %v", t.Type, t.Lexeme, t.Literal)
 }
+
+func Tester() string {
+	return "hello"
+}
