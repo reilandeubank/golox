@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/reilandeubank/golox/pkg/scanner"
 )
 
 var hadError bool = false
@@ -57,14 +59,18 @@ func runPrompt() {
 
 func run(source string) {
 	reader := strings.NewReader(source)
-	scanner := bufio.NewScanner(reader) //Golang scanners cannot read strings so must pass a string reader
+	goScanner := bufio.NewScanner(reader) //Golang scanners cannot read strings so must pass a string reader
 	// needs changing. This is trying to use "go scanner" but need to use scanner from pkg/scanner
-	tokens := scanner.ScanTokens()
+	tokens := goScanner.ScanTokens()
 
 	// For now, just print the tokens
 	for _, token := range tokens {
 		fmt.Println(token)
 	}
+
+	foo := scanner.Tester() //imports are working
+
+	fmt.Println(foo)
 }
 
 func loxError(line int, message string) {
