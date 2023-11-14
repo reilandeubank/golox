@@ -39,21 +39,21 @@ func runFile(path string) error {
 }
 
 func runPrompt() {
-	scanner := bufio.NewScanner(os.Stdin)
+	bufscanner := bufio.NewScanner(os.Stdin)
 
 	for {
 		fmt.Print(">>>")
-		if !scanner.Scan() {
+		if !bufscanner.Scan() {
 			break
 		}
 
-		line := scanner.Text()
+		line := bufscanner.Text()
 		run(line)
 		scanner.SetErrorFlag(false)
 	}
 
-	if scanner.Err() != nil {
-		fmt.Println("An error occurred:", scanner.Err())
+	if bufscanner.Err() != nil {
+		fmt.Println("An error occurred:", bufscanner.Err())
 	}
 }
 
