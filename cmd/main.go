@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
+	//"strings"
 
 	"github.com/reilandeubank/golox/pkg/scanner"
 )
@@ -58,10 +58,8 @@ func runPrompt() {
 }
 
 func run(source string) {
-	reader := strings.NewReader(source)
-	goScanner := bufio.NewScanner(reader) //Golang scanners cannot read strings so must pass a string reader
-	// needs changing. This is trying to use "go scanner" but need to use scanner from pkg/scanner
-	tokens := goScanner.ScanTokens()
+	thisScanner := scanner.NewScanner(source)
+	tokens := thisScanner.ScanTokens()
 
 	// For now, just print the tokens
 	for _, token := range tokens {
