@@ -46,11 +46,11 @@ func (s *Scanner) addTokenWithTypeAndLiteral(thisType TokenType, literal interfa
 	s.Tokens = append(s.Tokens, Token{Type: thisType, Lexeme: text, Literal: literal, Line: s.Line})
 }
 
-func (s *Scanner) scanTokens() []Token {
+func (s *Scanner) ScanTokens() []Token {
 	for !s.isAtEnd() {
 		// we are at the beginning of the next lexeme
 		s.Start = s.Curr
-		s.scanToken()
+		s.ScanToken()
 	}
 
 	t := NewToken(EOF, "", nil, s.Line)
@@ -58,31 +58,31 @@ func (s *Scanner) scanTokens() []Token {
 	return s.Tokens
 }
 
-func (s *Scanner) scanToken() (TokenType, error) {
+func (s *Scanner) ScanToken() (TokenType, error) {
 	ch := s.advance()
 	switch ch {
-    case '(':
-        s.addToken(LEFT_PAREN)
-    case ')':
-        s.addToken(RIGHT_PAREN)
-    case '{':
-        s.addToken(LEFT_BRACE)
-    case '}':
-        s.addToken(RIGHT_BRACE)
-    case ',':
-        s.addToken(COMMA)
-    case '.':
-        s.addToken(DOT)
-    case '-':
-        s.addToken(MINUS)
-    case '+':
-        s.addToken(PLUS)
-    case ';':
-        s.addToken(SEMICOLON)
-    case '*':
-        s.addToken(STAR)
+	case '(':
+		s.addToken(LEFT_PAREN)
+	case ')':
+		s.addToken(RIGHT_PAREN)
+	case '{':
+		s.addToken(LEFT_BRACE)
+	case '}':
+		s.addToken(RIGHT_BRACE)
+	case ',':
+		s.addToken(COMMA)
+	case '.':
+		s.addToken(DOT)
+	case '-':
+		s.addToken(MINUS)
+	case '+':
+		s.addToken(PLUS)
+	case ';':
+		s.addToken(SEMICOLON)
+	case '*':
+		s.addToken(STAR)
 	default:
-		report(s.Line, "", "Unexpected character.")
+		LoxError(s.Line, "Unexpected character.")
 	}
 	return EOF, nil
 }

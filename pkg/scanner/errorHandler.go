@@ -9,19 +9,19 @@ import (
 
 var hadErrorFlag bool = false
 
-func hadError() bool {
+func HadError() bool {
 	return hadErrorFlag
 }
 
-func setErrorFlag(val bool) {
+func SetErrorFlag(val bool) {
 	hadErrorFlag = val
 }
 
-func loxError(line int, message string) {
-	report(line, "", message)
+func LoxError(line int, message string) {
+	Report(line, "", message)
 }
 
-func report(line int, where string, message string) {
+func Report(line int, where string, message string) {
 	fmt.Fprintf(os.Stderr, "[line %d] Error%s: %s\n", line, where, message)
 	hadErrorFlag = true
 }

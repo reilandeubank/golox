@@ -32,7 +32,7 @@ func runFile(path string) error {
 
 	run(string(bytes))
 
-	if scanner.hadError() {
+	if scanner.HadError() {
 		os.Exit(65)
 	}
 	return nil
@@ -49,7 +49,7 @@ func runPrompt() {
 
 		line := scanner.Text()
 		run(line)
-		scanner.setErrorFlag(false)
+		scanner.SetErrorFlag(false)
 	}
 
 	if scanner.Err() != nil {
