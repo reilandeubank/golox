@@ -9,7 +9,7 @@ import (
 	"github.com/reilandeubank/golox/pkg/scanner"
 )
 
-var hadError bool = false
+//var hadError bool = false
 
 func main() {
 	args := os.Args[1:]
@@ -32,7 +32,7 @@ func runFile(path string) error {
 
 	run(string(bytes))
 
-	if hadError {
+	if scanner.hadError() {
 		os.Exit(65)
 	}
 	return nil
@@ -49,7 +49,7 @@ func runPrompt() {
 
 		line := scanner.Text()
 		run(line)
-		hadError = false
+		scanner.setErrorFlag(false)
 	}
 
 	if scanner.Err() != nil {
@@ -71,13 +71,4 @@ func run(source string) {
 	foo := scanner.Tester() //imports are working
 
 	fmt.Println(foo)
-}
-
-func loxError(line int, message string) {
-	report(line, "", message)
-}
-
-func report(line int, where string, message string) {
-	fmt.Fprintf(os.Stderr, "[line %d] Error%s: %s\n", line, where, message)
-	hadError = true
 }
