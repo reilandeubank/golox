@@ -49,5 +49,7 @@ const (
 	VAR
 	WHILE
 
+	WHITESPACE
+	OTHER
 	EOF
 )

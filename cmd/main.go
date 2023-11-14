@@ -63,10 +63,6 @@ func run(source string) {
 
 	// For now, just print the tokens
 	for _, token := range tokens {
-		fmt.Println(token)
+		fmt.Println(token.String())
 	}
-
-	foo := scanner.Tester() //imports are working
-
-	fmt.Println(foo)
 }
