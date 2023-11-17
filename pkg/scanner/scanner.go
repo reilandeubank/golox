@@ -57,49 +57,22 @@ func (s *Scanner) advance() rune {
 	return ch
 }
 
+func (s *Scanner) addToken(thisType TokenType) {
+	//fmt.Println("Adding token: ", thisType)
+	s.addTokenWithTypeAndLiteral(thisType, nil)
+}
+
+func (s *Scanner) addTokenWithTypeAndLiteral(thisType TokenType, literal interface{}) {
+	text := s.Source[s.Start:s.Curr]
+	s.Tokens = append(s.Tokens, Token{Type: thisType, Lexeme: text, Literal: literal, Line: s.Line})
+}
+
 func (s *Scanner) ScanTokens() []Token {
 	// Driving loop
 	// Note that s.curr is not incremented in Number, String, or Identifier readers since they handle their own iteration
 	for !s.isAtEnd() {
-		nextToken, err := s.ScanToken()
-
-		// Handle string literals
-		if nextToken == STRING {
-			token, err := s.tokenizeString()
-			if err == nil {
-				s.Tokens = append(s.Tokens, token)
-			}
-
-			// Handle number literals
-		} else if nextToken == NUMBER {
-			token, err := s.tokenizeNumber()
-			if err == nil {
-				s.Tokens = append(s.Tokens, token)
-			}
-
-			// Handle Identifiers
-		} else if nextToken == IDENTIFIER {
-			token, err := s.tokenizeIdentifier()
-			if err == nil {
-				s.Tokens = append(s.Tokens, token)
-			}
-
-			// Handle Whitespace
-		} else if nextToken == WHITESPACE {
-			// Whitespace doesn't constitute a token, so just increment
-			s.Curr++
-
-			// Handle all other tokens
-		} else {
-			if err == nil {
-				s.Tokens = append(s.Tokens, Token{nextToken, string(s.Source[s.Curr]), nil, s.Line})
-			}
-			s.Curr++
-		}
-
-		if err != nil {
-			LoxError(s.Line, "Error scanning token.")
-		}
+		s.Start = s.Curr
+		s.ScanToken()
 	}
 
 	// Add EOF token
@@ -107,93 +80,90 @@ func (s *Scanner) ScanTokens() []Token {
 	return s.Tokens
 }
 
-func (s *Scanner) ScanToken() (TokenType, error) {
+func (s *Scanner) ScanToken() {
 	ch := s.advance()
 	switch ch {
-	case '(':
-		return LEFT_PAREN, nil
-	case ')':
-		return RIGHT_PAREN, nil
-	case '{':
-		return LEFT_BRACE, nil
-	case '}':
-		return RIGHT_BRACE, nil
-	case ',':
-		return COMMA, nil
-	case '.':
-		return DOT, nil
-	case '-':
-		return MINUS, nil
-	case '+':
-		return PLUS, nil
-	case ';':
-		return SEMICOLON, nil
-	case '*':
-		return STAR, nil
-		// Dual-character tokens
+	case '(': s.addToken(LEFT_PAREN)
+	case ')': s.addToken(RIGHT_PAREN)
+	case '{': s.addToken(LEFT_BRACE)
+	case '}': s.addToken(RIGHT_BRACE)
+	case ',': s.addToken(COMMA)
+	case '.': s.addToken(DOT)
+	case '-': s.addToken(MINUS)
+	case '+': s.addToken(PLUS)
+	case ';': s.addToken(SEMICOLON)
+	case '*': s.addToken(STAR)
+	// Dual-character tokens
 	case '!':
-		if s.Source[s.Curr+1] == '=' {
+		if s.match('=') {
 			s.Curr++
-			return BANG_EQUAL, nil
+			s.addToken(BANG_EQUAL)
 		} else {
-			return BANG, nil
+			s.addToken(BANG)
 		}
 	case '=':
-		if s.Source[s.Curr+1] == '=' {
+		if s.match('=') {
 			s.Curr++
-			return EQUAL_EQUAL, nil
+			s.addToken(EQUAL_EQUAL)
 		} else {
-			return EQUAL, nil
+			s.addToken(EQUAL)
 		}
 	case '<':
-		if s.Source[s.Curr+1] == '=' {
+		if s.match('=') {
 			s.Curr++
-			return LESS_EQUAL, nil
+			s.addToken(LESS_EQUAL)
 		} else {
-			return LESS, nil
+			s.addToken(LESS)
 		}
 	case '>':
-		if s.Source[s.Curr+1] == '=' {
+		if s.match('=') {
 			s.Curr++
-			return GREATER_EQUAL, nil
+			s.addToken(GREATER_EQUAL)
 		} else {
-			return GREATER, nil
+			s.addToken(GREATER)
 		}
 	case '/':
-		if s.Source[s.Curr+1] == '/' {
+		if s.match('/') {
 			for s.Source[s.Curr] != '\n' && s.Curr < len(s.Source) {
 				s.Curr++
 			}
 		} else {
-			return SLASH, nil
+			s.addToken(SLASH)
 		}
 	// Handle whitespace
-	case ' ':
-		return WHITESPACE, nil
-	case '\r':
-		return WHITESPACE, nil
-	case '\t':
-		return WHITESPACE, nil
+	case ' ': 
+	case '\r': 
+	case '\t': 
 	case '\n':
 		s.Line++
-		return WHITESPACE, nil
 	// Handle strings
-	case '"':
-		return STRING, nil
+	case '"': s.tokenizeString()
+	default:
+		if unicode.IsDigit(rune(ch)) {
+			s.tokenizeNumber()
+		} else if unicode.IsLetter(rune(ch)) {
+			s.tokenizeIdentifier()
+		} else {
+			errorStr := fmt.Sprintf("Unexpected character: %c at line %d", ch, s.Line)
+			LoxError(s.Line, errorStr)
+		}
 	}
-	// Handle numbers
-	if unicode.IsDigit(rune(ch)) {
-		return NUMBER, nil
-	} else if unicode.IsLetter(rune(ch)) {
-		return IDENTIFIER, nil
-	}
-	LoxError(s.Line, "Unexpected character.")
-	return OTHER, fmt.Errorf("Unexpected character: %c at line %d", ch, s.Line)
+	
 }
 
-func (s *Scanner) tokenizeString() (Token, error) {
+func (s *Scanner) match(expected rune) bool {
+	if s.isAtEnd() {
+		return false
+	}
+	if rune(s.Source[s.Curr]) != expected {
+		return false
+	}
+	s.Curr++
+	return true;
+}
+
+func (s *Scanner) tokenizeString() {
 	// Track initial position
-	initial := s.Curr
 	foundQuote := false
 
 	s.Curr++
@@ -220,17 +190,17 @@ func (s *Scanner) tokenizeString() (Token, error) {
 	if !foundQuote {
 		// Set current position to end of file to prevent further iteration
 		s.Curr = len(s.Source)
-		return Token{}, fmt.Errorf("Unterminated string at line %d", s.Line)
+		errorStr := fmt.Sprintf("Unterminated string at line %d", s.Line)
+		LoxError(s.Line, errorStr)
 	}
 
 	// Return token using substring created from initial and current positions
-	return Token{STRING, s.Source[initial:s.Curr], s.Source[initial+1 : s.Curr-1], s.Line}, nil
+	s.addTokenWithTypeAndLiteral(STRING, s.Source[s.Start+1 : s.Curr-1])
 }
 
 // Number reader for Scanner
-func (s *Scanner) tokenizeNumber() (Token, error) {
+func (s *Scanner) tokenizeNumber() {
 	// Track initial position and whether or not a dot has been found
-	initial := s.Curr
 	foundDot := false
 
 	// Iterate until end of number or end of file
@@ -240,7 +210,8 @@ func (s *Scanner) tokenizeNumber() (Token, error) {
 		if s.Source[s.Curr] == '.' {
 			// Return error if dot has already been found
 			if foundDot {
-				return Token{}, fmt.Errorf("Invalid number at line %d", s.Line)
+				errorStr := fmt.Sprintf("Invalid number at line %d", s.Line)
+				LoxError(s.Line, errorStr)
 			}
 			// Otherwise, set foundDot to true and skip to next character
 			foundDot = true
@@ -250,12 +221,12 @@ func (s *Scanner) tokenizeNumber() (Token, error) {
 	}
 
 	// Return token using substring created from initial and current positions
-	return Token{NUMBER, s.Source[initial:s.Curr], s.Source[initial:s.Curr], s.Line}, nil
+	s.addTokenWithTypeAndLiteral(NUMBER, s.Source[s.Start:s.Curr])
 }
 
 // Identifier reader for Scanner
 // Note that although an error is never returned, it is good practice to provide support for it
-func (s *Scanner) tokenizeIdentifier() (Token, error) {
+func (s *Scanner) tokenizeIdentifier() {
 	// Track initial position
 	initial := s.Curr
 
@@ -266,10 +237,11 @@ func (s *Scanner) tokenizeIdentifier() (Token, error) {
 
 	// Check for existing keyword
 	identifier := s.Source[initial:s.Curr]
-	if tokentype, found := keywords[identifier]; found {
-		return Token{tokentype, identifier, nil, s.Line}, nil
+	tokentype, found := keywords[identifier]
+	if !found {
+		tokentype = IDENTIFIER
 	}
 
 	// Return token using substring created from initial and current positions
-	return Token{IDENTIFIER, identifier, nil, s.Line}, nil
+	s.addToken(tokentype)
 }
