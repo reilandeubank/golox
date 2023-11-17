@@ -57,6 +57,13 @@ func (s *Scanner) advance() rune {
 	return ch
 }
 
+func (s *Scanner) peek() rune {
+	if s.isAtEnd() {
+		return '\000'
+	}
+	return rune(s.Source[s.Curr])
+}
+
 func (s *Scanner) addToken(thisType TokenType) {
 	//fmt.Println("Adding token: ", thisType)
 	s.addTokenWithTypeAndLiteral(thisType, nil)
@@ -96,36 +103,33 @@ func (s *Scanner) ScanToken() {
 	// Dual-character tokens
 	case '!':
 		if s.match('=') {
-			s.Curr++
 			s.addToken(BANG_EQUAL)
 		} else {
 			s.addToken(BANG)
 		}
 	case '=':
 		if s.match('=') {
-			s.Curr++
 			s.addToken(EQUAL_EQUAL)
 		} else {
 			s.addToken(EQUAL)
 		}
 	case '<':
 		if s.match('=') {
-			s.Curr++
 			s.addToken(LESS_EQUAL)
 		} else {
 			s.addToken(LESS)
 		}
 	case '>':
 		if s.match('=') {
-			s.Curr++
 			s.addToken(GREATER_EQUAL)
 		} else {
 			s.addToken(GREATER)
 		}
 	case '/':
 		if s.match('/') {
-			for s.Source[s.Curr] != '\n' && s.Curr < len(s.Source) {
-				s.Curr++
+			for !s.isAtEnd() && s.peek() != '\n' {
+				s.advance()
+				//fmt.Println(s.peek())
 			}
 		} else {
 			s.addToken(SLASH)
@@ -227,21 +231,17 @@ func (s *Scanner) tokenizeNumber() {
 // Identifier reader for Scanner
 // Note that although an error is never returned, it is good practice to provide support for it
 func (s *Scanner) tokenizeIdentifier() {
-	// Track initial position
-	initial := s.Curr
-
 	// Iterate until end of identifier or end of file
 	for s.Curr < len(s.Source) && (unicode.IsLetter(rune(s.Source[s.Curr])) || unicode.IsDigit(rune(s.Source[s.Curr]))) {
 		s.Curr++
 	}
 
 	// Check for existing keyword
-	identifier := s.Source[initial:s.Curr]
-	tokentype, found := keywords[identifier]
-	if !found {
-		tokentype = IDENTIFIER
-	}
-
-	// Return token using substring created from initial and current positions
-	s.addToken(tokentype)
+	identifier := s.Source[s.Start:s.Curr]
+	if tokentype, exists := keywords[identifier]; exists {
+        s.addToken(tokentype)
+    } else {
+        // Set to default value if the key is not found
+        s.addToken(IDENTIFIER)
+    }
 }
