@@ -1,7 +1,7 @@
 package expression
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/reilandeubank/golox/pkg/scanner"
 )
 
@@ -46,7 +46,7 @@ func (l Literal) Accept() string {
 }
 
 // visitLiteralExpr() is a method that returns a string representation of the expression
-func visitLiteralExpr(l Literal) string {
+func (l Literal) visitLiteralExpr() string {
 	return l.Value
 }
 
