@@ -1,6 +1,7 @@
 package expression
 
 import (
+	"fmt"
 	"github.com/reilandeubank/golox/pkg/scanner"
 )
 
@@ -221,3 +222,15 @@ func (c Call) String() string {
 // accept() is used to generate the AST
 // visit() is used to generate the string representation of the AST
 // String() is used to generate readable output for debugging/users
+
+
+func main() {
+	expr := Binary{
+		Unary{
+			scanner.NewToken(scanner.MINUS, "-", nil, 1),
+			Literal{"123", scanner.NUMBER}},
+		scanner.NewToken(scanner.STAR, "*", nil, 1),
+		Grouping{Literal{"45.67", scanner.NUMBER}},
+		}
+	fmt.Println(expr.String())
+}

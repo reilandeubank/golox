@@ -6,21 +6,30 @@ import (
 	"os"
 	//"strings"
 	"github.com/reilandeubank/golox/pkg/scanner"
+	"github.com/reilandeubank/golox/pkg/expression"
 )
 
 //var hadError bool = false
 
 func main() {
-	args := os.Args[1:]
+	// args := os.Args[1:]
 
-	if len(args) > 1 {
-		fmt.Println("Usage: golox [script]")
-		os.Exit(64)
-	} else if len(args) == 1 {
-		runFile(args[0])
-	} else {
-		runPrompt()
-	}
+	// if len(args) > 1 {
+	// 	fmt.Println("Usage: golox [script]")
+	// 	os.Exit(64)
+	// } else if len(args) == 1 {
+	// 	runFile(args[0])
+	// } else {
+	// 	runPrompt()
+	// }
+	expr := expression.Binary{
+		expression.Unary{
+			scanner.NewToken(scanner.MINUS, "-", nil, 1),
+			expression.Literal{"123", scanner.NUMBER}},
+		scanner.NewToken(scanner.STAR, "*", nil, 1),
+		expression.Grouping{expression.Literal{"45.67", scanner.NUMBER}},
+		}
+	fmt.Println(expr.String())
 }
 
 func runFile(path string) error {

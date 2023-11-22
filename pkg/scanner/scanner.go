@@ -4,6 +4,7 @@ import (
 	"fmt"
 	// "log"
 	// "os"
+	"strconv"
 	"unicode"
 	"unicode/utf8"
 )
@@ -145,7 +146,7 @@ func (s *Scanner) ScanToken() {
 	default:
 		if unicode.IsDigit(rune(ch)) {
 			s.tokenizeNumber()
-		} else if unicode.IsLetter(rune(ch)) {
+		} else if unicode.IsLetter(rune(ch)) || ch == '_' {
 			s.tokenizeIdentifier()
 		} else {
 			errorStr := fmt.Sprintf("Unexpected character: %c at line %d", ch, s.Line)
@@ -168,9 +169,9 @@ func (s *Scanner) match(expected rune) bool {
 
 func (s *Scanner) tokenizeString() {
 	// Track initial position
-	foundQuote := false
+	unterminated := true
 
-	s.Curr++
+	//s.Curr++
 
 	// Iterate until end of string or end of file
 	for s.Curr < len(s.Source) {
@@ -178,7 +179,7 @@ func (s *Scanner) tokenizeString() {
 		// Break at closing quote
 		if s.Source[s.Curr] == '"' {
 			s.Curr++
-			foundQuote = true
+			unterminated = false
 			break
 		}
 
@@ -191,15 +192,17 @@ func (s *Scanner) tokenizeString() {
 	}
 
 	// Check for unterminated string
-	if !foundQuote {
+	if unterminated {
 		// Set current position to end of file to prevent further iteration
 		s.Curr = len(s.Source)
 		errorStr := fmt.Sprintf("Unterminated string at line %d", s.Line)
 		LoxError(s.Line, errorStr)
+	} else {
+		// Return token using substring created from initial and current positions
+		s.addTokenWithTypeAndLiteral(STRING, s.Source[s.Start+1 : s.Curr-1])
 	}
 
 	// Return token using substring created from initial and current positions
-	s.addTokenWithTypeAndLiteral(STRING, s.Source[s.Start+1 : s.Curr-1])
 }
 
 // Number reader for Scanner
@@ -224,15 +227,21 @@ func (s *Scanner) tokenizeNumber() {
 		s.Curr++
 	}
 
+	floatVal, err := strconv.ParseFloat(s.Source[s.Start:s.Curr], 64)
+
+	if err != nil {
+        errorStr := fmt.Sprintf("Invalid number at line %d", s.Line)
+		LoxError(s.Line, errorStr)
+    }
 	// Return token using substring created from initial and current positions
-	s.addTokenWithTypeAndLiteral(NUMBER, s.Source[s.Start:s.Curr])
+	s.addTokenWithTypeAndLiteral(NUMBER, floatVal)
 }
 
 // Identifier reader for Scanner
 // Note that although an error is never returned, it is good practice to provide support for it
 func (s *Scanner) tokenizeIdentifier() {
 	// Iterate until end of identifier or end of file
-	for s.Curr < len(s.Source) && (unicode.IsLetter(rune(s.Source[s.Curr])) || unicode.IsDigit(rune(s.Source[s.Curr]))) {
+	for s.Curr < len(s.Source) && (unicode.IsLetter(rune(s.Source[s.Curr])) || unicode.IsDigit(rune(s.Source[s.Curr])) || s.Source[s.Curr] == '_') {
 		s.Curr++
 	}
 
