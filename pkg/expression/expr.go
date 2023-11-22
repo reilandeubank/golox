@@ -224,13 +224,13 @@ func (c Call) String() string {
 // String() is used to generate readable output for debugging/users
 
 
-func main() {
-	expr := Binary{
-		Unary{
-			scanner.NewToken(scanner.MINUS, "-", nil, 1),
-			Literal{"123", scanner.NUMBER}},
-		scanner.NewToken(scanner.STAR, "*", nil, 1),
-		Grouping{Literal{"45.67", scanner.NUMBER}},
-		}
-	fmt.Println(expr.String())
-}
+// func main() {
+// 	expr := Binary{
+// 		Unary{
+// 			scanner.NewToken(scanner.MINUS, "-", nil, 1),
+// 			Literal{"123", scanner.NUMBER}},
+// 		scanner.NewToken(scanner.STAR, "*", nil, 1),
+// 		Grouping{Literal{"45.67", scanner.NUMBER}},
+// 		}
+// 	fmt.Println(expr.String())
+// }
