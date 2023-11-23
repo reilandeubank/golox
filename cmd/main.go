@@ -7,6 +7,7 @@ import (
 	//"strings"
 	"github.com/reilandeubank/golox/pkg/scanner"
 	//"github.com/reilandeubank/golox/pkg/expression"
+	"github.com/reilandeubank/golox/pkg/parser"
 )
 
 //var hadError bool = false
@@ -61,8 +62,16 @@ func run(source string) {
 	thisScanner := scanner.NewScanner(source)
 	tokens := thisScanner.ScanTokens()
 
-	// For now, just print the tokens
-	for _, token := range tokens {
-		fmt.Println(token.String())
+	parser := parser.NewParser(tokens)
+	expression, err := parser.Parse()
+
+	if err != nil || scanner.HadError() {
+		return
 	}
+
+	fmt.Println(expression.String())
+	// // For now, just print the tokens
+	// for _, token := range tokens {
+	// 	fmt.Println(token.String())
+	// }
 }
