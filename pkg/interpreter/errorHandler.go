@@ -28,6 +28,6 @@ func NewRuntimeError(token scanner.Token, message string) RuntimeError {
 }
 
 func (r *RuntimeError) Error() string {
-	msg := fmt.Sprintf("[line %d] Error: %s, offending code:%s", r.Token.Line, r.Message, r.Token.Literal)
+	msg := fmt.Sprintf("[line %d] Error: %s", r.Token.Line, r.Message)
 	return msg
 }

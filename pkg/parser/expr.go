@@ -37,7 +37,7 @@ type Expression interface {
 
 // Literal is a struct that implements the Expression interface
 type Literal struct {
-	Value string
+	Value interface{}
 	Type  scanner.TokenType
 }
 

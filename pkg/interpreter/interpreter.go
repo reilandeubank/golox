@@ -3,8 +3,9 @@ package interpreter
 import (
 	"fmt"
 	"reflect"
-	"github.com/reilandeubank/golox/pkg/scanner"
+
 	"github.com/reilandeubank/golox/pkg/parser"
+	"github.com/reilandeubank/golox/pkg/scanner"
 )
 
 func isTruthy(object interface{}) bool {
@@ -47,11 +48,17 @@ func (i *Interpreter) evaluate(expr parser.Expression) (interface{}, error) {
 }
 
 func (i *Interpreter) VisitUnaryExpr(unary parser.Unary) (interface{}, error) {
-	right, _ := i.evaluate(unary.Right)
+	right, err := i.evaluate(unary.Right)
+	if err != nil {
+		return nil, err
+	}
 
 	switch unary.Operator.Type {
 	case scanner.MINUS:
-		checkNumberOperand(unary.Operator, right)
+		err = checkNumberOperand(unary.Operator, right)
+		if err != nil {
+			return nil, err
+		}
 		return -(right.(float64)), nil
 	case scanner.BANG:
 		return !isTruthy(right), nil
@@ -61,42 +68,65 @@ func (i *Interpreter) VisitUnaryExpr(unary parser.Unary) (interface{}, error) {
 }
 
 func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error) {
-	fmt.Println("Visiting binary expression")
-	left, _ := i.evaluate(binary.Left)
+	left, err := i.evaluate(binary.Left)
+	if err != nil {
+		return nil, err
+	}
 	right, _ := i.evaluate(binary.Right)
+	if err != nil {
+		return nil, err
+	}
 
 	switch binary.Operator.Type {
 	case scanner.MINUS:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) - right.(float64), nil
 	case scanner.SLASH:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) / right.(float64), nil
 	case scanner.STAR:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) * right.(float64), nil
 	case scanner.PLUS:
-		fmt.Println("Adding", left, right)
-		fmt.Println("Types:", reflect.TypeOf(left), reflect.TypeOf(right))	// numbers are strings for some reason. Investigate
 		if reflect.TypeOf(left) == reflect.TypeOf("") && reflect.TypeOf(right) == reflect.TypeOf("") {
 			return left.(string) + right.(string), nil
 		}
 		if reflect.TypeOf(left) == reflect.TypeOf(0.0) && reflect.TypeOf(right) == reflect.TypeOf(0.0) {
-			fmt.Println("returning: ", left.(float64) + right.(float64))
 			return left.(float64) + right.(float64), nil
 		}
-		return nil, &RuntimeError{Token: binary.Operator, Message: "Operands must be two numbers or two strings."}
+		return nil, &RuntimeError{Token: binary.Operator, Message: "Operands must be two numbers or two strings"}
 	case scanner.GREATER:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) > right.(float64), nil
 	case scanner.GREATER_EQUAL:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) >= right.(float64), nil
 	case scanner.LESS:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) < right.(float64), nil
 	case scanner.LESS_EQUAL:
-		checkNumberOperands(binary.Operator, left, right)
+		err = checkNumberOperands(binary.Operator, left, right)
+		if err != nil {
+			return nil, err
+		}
 		return left.(float64) <= right.(float64), nil
 	case scanner.BANG_EQUAL:
 		return !isEqual(left, right), nil
@@ -107,27 +137,26 @@ func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error)
 	return nil, nil // unreachable
 }
 
-
-
 func checkNumberOperand(operator scanner.Token, operand interface{}) error {
 	if reflect.TypeOf(operand) == reflect.TypeOf(0.0) {
 		return nil
 	}
-	return &RuntimeError{Token: operator, Message: "Operator must be a number."}
+	return &RuntimeError{Token: operator, Message: "Operator must be a number"}
 }
 
 func checkNumberOperands(operator scanner.Token, left interface{}, right interface{}) error {
 	if reflect.TypeOf(left) == reflect.TypeOf(0.0) && reflect.TypeOf(right) == reflect.TypeOf(0.0) {
 		return nil
 	}
-	return &RuntimeError{Token: operator, Message: "Operators must be numbers."}
+	return &RuntimeError{Token: operator, Message: "Operators must be numbers"}
 }
 
-func (i *Interpreter) Interpret(expression parser.Expression) {
-	value, _ := i.evaluate(expression)
+func (i *Interpreter) Interpret(expression parser.Expression) error {
+	value, err := i.evaluate(expression)
 	if value != nil {
 		println(stringify(value))
 	}
+	return err
 }
 
 func stringify(object interface{}) string {

@@ -76,7 +76,11 @@ func run(source string) {
 	// fmt.Println(expression.String())
 
 	i := interpreter.NewInterpreter()
-	i.Interpret(expression)
+	err = i.Interpret(expression)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 										// TODO: system.exit(70)
 

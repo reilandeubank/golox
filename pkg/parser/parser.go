@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 	"github.com/reilandeubank/golox/pkg/scanner"
 	"errors"
 )
@@ -114,41 +113,41 @@ func (p *Parser) unary() (Expression, error) {
 
 func (p *Parser) primary() (Expression, error) {
 	if p.match(scanner.FALSE) {
-		return Literal{Value: "false"}, nil
+		return Literal{Value: false, Type: scanner.FALSE}, nil
 	}
 	if p.match(scanner.TRUE) {
-		return Literal{Value: "true"}, nil
+		return Literal{Value: true, Type: scanner.TRUE}, nil
 	}
 	if p.match(scanner.NIL) {
-		return Literal{Value: "nil"}, nil
+		return Literal{Value: nil, Type: scanner.NIL}, nil
 	}
 	if p.match(scanner.NUMBER, scanner.STRING) {
-		var value string
+		var prevValue interface{} = p.previous().Literal
 		var err error
-		switch v := p.previous().Literal.(type) {
+		switch prevValue.(type) {
 		case string:
-			value = v
+			return Literal{Value: prevValue, Type: scanner.STRING}, err
 		case float64:
-			value = strconv.FormatFloat(v, 'f', -1, 64)
+			return Literal{Value: prevValue, Type: scanner.NUMBER}, err
 		default:
 			// Handle other types or error
-			message := "unexpected literal type: " + fmt.Sprintf("%T", v)
+			message := "unexpected literal type: " + fmt.Sprintf("%T", prevValue)
 			ParseError(p.peek(), message)
 			err = errors.New(message)
 		}
-		return Literal{Value: value}, err
+		return Literal{Value: nil, Type: scanner.NIL}, err
 	}
 	if p.match(scanner.LEFT_PAREN) {
 		expr, err := p.expr()
 		if err != nil {
-			return Literal{Value: "nil"}, err
+			return Literal{Value: nil}, err
 		}
 		_, err = p.consume(scanner.RIGHT_PAREN, "expect ')' after expression.")
 		return Grouping{Expression: expr}, err
 	}
 	message := "expect expression"
 	ParseError(p.peek(), message)
-	return Literal{Value: "nil"}, errors.New(message)
+	return Literal{Value: nil}, errors.New(message)
 }
 
 func (p *Parser) consume(t scanner.TokenType, message string) (scanner.Token, error) {
@@ -162,8 +161,8 @@ func (p *Parser) consume(t scanner.TokenType, message string) (scanner.Token, er
 func (p *Parser) Parse() (Expression, error) {
 	expr, err := p.expr()
 	if err != nil {
-		return Literal{Value: "nil"}, err
+		return Literal{Value: nil}, err
 	}
-	//_, err = p.consume(scanner.EOF, "Expect end of expression")
+	// _, err = p.consume(scanner.EOF, "Expect end of expression")
 	return expr, err
 }
