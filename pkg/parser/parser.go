@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"github.com/reilandeubank/golox/pkg/scanner"
-	"github.com/reilandeubank/golox/pkg/expression"
 	"errors"
 )
 
@@ -56,72 +55,72 @@ func (p *Parser) previous() scanner.Token {
 	return p.Tokens[p.Curr-1]
 }
 
-func (p *Parser) expr() (expression.Expression, error) {
+func (p *Parser) expr() (Expression, error) {
 	return p.equality()
 }
 
-func (p *Parser) equality() (expression.Expression, error) {
+func (p *Parser) equality() (Expression, error) {
 	expr, err := p.comparison()
 	for p.match(scanner.BANG_EQUAL, scanner.EQUAL_EQUAL) {
 		operator := p.previous()
-		var right expression.Expression
+		var right Expression
 		right, err= p.comparison()
-		expr = expression.Binary{Left: expr, Operator: operator, Right: right}
+		expr = Binary{Left: expr, Operator: operator, Right: right}
 	}
 	return expr, err
 }
 
-func (p *Parser) comparison() (expression.Expression, error) {
+func (p *Parser) comparison() (Expression, error) {
 	expr, err := p.term()
 	for p.match(scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL) {
 		operator := p.previous()
-		var right expression.Expression
+		var right Expression
 		right, err= p.term()
-		expr = expression.Binary{Left: expr, Operator: operator, Right: right}
+		expr = Binary{Left: expr, Operator: operator, Right: right}
 	}
 	return expr, err
 }
 
-func (p *Parser) term() (expression.Expression, error) {
+func (p *Parser) term() (Expression, error) {
 	expr, err := p.factor()
 	for p.match(scanner.MINUS, scanner.PLUS) {
 		operator := p.previous()
-		var right expression.Expression
+		var right Expression
 		right, err = p.factor()
-		expr = expression.Binary{Left: expr, Operator: operator, Right: right}
+		expr = Binary{Left: expr, Operator: operator, Right: right}
 	}
 	return expr, err
 }
 
-func (p *Parser) factor() (expression.Expression, error) {
+func (p *Parser) factor() (Expression, error) {
 	expr, err := p.unary()
 	for p.match(scanner.SLASH, scanner.STAR) {
 		operator := p.previous()
-		var right expression.Expression
+		var right Expression
 		right, err = p.unary()
-		expr = expression.Binary{Left: expr, Operator: operator, Right: right}
+		expr = Binary{Left: expr, Operator: operator, Right: right}
 	}
 	return expr, err
 }
 
-func (p *Parser) unary() (expression.Expression, error) {
+func (p *Parser) unary() (Expression, error) {
 	if p.match(scanner.BANG, scanner.MINUS) {
 		operator := p.previous()
 		right, err := p.unary()
-		return expression.Unary{Operator: operator, Right: right}, err
+		return Unary{Operator: operator, Right: right}, err
 	}
 	return p.primary()
 }
 
-func (p *Parser) primary() (expression.Expression, error) {
+func (p *Parser) primary() (Expression, error) {
 	if p.match(scanner.FALSE) {
-		return expression.Literal{Value: "false"}, nil
+		return Literal{Value: "false"}, nil
 	}
 	if p.match(scanner.TRUE) {
-		return expression.Literal{Value: "true"}, nil
+		return Literal{Value: "true"}, nil
 	}
 	if p.match(scanner.NIL) {
-		return expression.Literal{Value: "nil"}, nil
+		return Literal{Value: "nil"}, nil
 	}
 	if p.match(scanner.NUMBER, scanner.STRING) {
 		var value string
@@ -137,19 +136,19 @@ func (p *Parser) primary() (expression.Expression, error) {
 			ParseError(p.peek(), message)
 			err = errors.New(message)
 		}
-		return expression.Literal{Value: value}, err
+		return Literal{Value: value}, err
 	}
 	if p.match(scanner.LEFT_PAREN) {
 		expr, err := p.expr()
 		if err != nil {
-			return expression.Literal{Value: "nil"}, err
+			return Literal{Value: "nil"}, err
 		}
 		_, err = p.consume(scanner.RIGHT_PAREN, "expect ')' after expression.")
-		return expression.Grouping{Expression: expr}, err
+		return Grouping{Expression: expr}, err
 	}
 	message := "expect expression"
 	ParseError(p.peek(), message)
-	return expression.Literal{Value: "nil"}, errors.New(message)
+	return Literal{Value: "nil"}, errors.New(message)
 }
 
 func (p *Parser) consume(t scanner.TokenType, message string) (scanner.Token, error) {
@@ -160,10 +159,10 @@ func (p *Parser) consume(t scanner.TokenType, message string) (scanner.Token, er
 	return scanner.NewToken(scanner.OTHER, "", nil, 0), errors.New(message)
 }
 
-func (p *Parser) Parse() (expression.Expression, error) {
+func (p *Parser) Parse() (Expression, error) {
 	expr, err := p.expr()
 	if err != nil {
-		return expression.Literal{Value: "nil"}, err
+		return Literal{Value: "nil"}, err
 	}
 	//_, err = p.consume(scanner.EOF, "Expect end of expression")
 	return expr, err
