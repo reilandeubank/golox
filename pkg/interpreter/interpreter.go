@@ -61,6 +61,7 @@ func (i *Interpreter) VisitUnaryExpr(unary parser.Unary) (interface{}, error) {
 }
 
 func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error) {
+	fmt.Println("Visiting binary expression")
 	left, _ := i.evaluate(binary.Left)
 	right, _ := i.evaluate(binary.Right)
 
@@ -75,10 +76,13 @@ func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error)
 		checkNumberOperands(binary.Operator, left, right)
 		return left.(float64) * right.(float64), nil
 	case scanner.PLUS:
+		fmt.Println("Adding", left, right)
+		fmt.Println("Types:", reflect.TypeOf(left), reflect.TypeOf(right))	// numbers are strings for some reason. Investigate
 		if reflect.TypeOf(left) == reflect.TypeOf("") && reflect.TypeOf(right) == reflect.TypeOf("") {
 			return left.(string) + right.(string), nil
 		}
 		if reflect.TypeOf(left) == reflect.TypeOf(0.0) && reflect.TypeOf(right) == reflect.TypeOf(0.0) {
+			fmt.Println("returning: ", left.(float64) + right.(float64))
 			return left.(float64) + right.(float64), nil
 		}
 		return nil, &RuntimeError{Token: binary.Operator, Message: "Operands must be two numbers or two strings."}
