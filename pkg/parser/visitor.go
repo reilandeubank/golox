@@ -5,12 +5,24 @@ type ExprVisitor interface {
 	VisitGroupingExpr(g Grouping) (interface{}, error)
 	VisitLiteralExpr(l Literal) (interface{}, error)
 	VisitUnaryExpr(u Unary) (interface{}, error)
-	//VisitVariableExpr(v *Variable) interface{}
-	//VisitAssignExpr(a *Assign) interface{}
-	//VisitLogicalExpr(l *Logical) interface{}
-	//VisitCallExpr(c *Call) interface{}
-	// VisitGetExpr(g *Get) interface{}
-	// VisitSetExpr(s *Set) interface{}
-	// VisitThisExpr(t *This) interface{}
-	// VisitSuperExpr(s *Super) interface{}
+	VisitVariableExpr(v Variable) (interface{}, error)
+	//VisitAssignExpr(a Assign) (interface{}, error)
+	//VisitLogicalExpr(l Logical) (interface{}, error)
+	//VisitCallExpr(c Call) (interface{}, error)
+	// VisitGetExpr(g Get) (interface{}, error)
+	// VisitSetExpr(s Set) (interface{}, error)
+	// VisitThisExpr(t This) (interface{}, error)
+	// VisitSuperExpr(s Super) (interface{}, error)
+}
+
+type StmtVisitor interface {
+	VisitExprStmt(e ExprStmt) (interface{}, error)
+	VisitPrintStmt(p PrintStmt) (interface{}, error)
+	VisitVarStmt(v VarStmt) (interface{}, error)
+	// VisitBlockStmt(b BlockStmt) (interface{}, error)
+	// VisitIfStmt(i IfStmt) (interface{}, error)
+	// VisitWhileStmt(w WhileStmt) (interface{}, error)
+	// VisitFunStmt(f FunStmt) (interface{}, error)
+	// VisitReturnStmt(r ReturnStmt) (interface{}, error)
+	// VisitClassStmt(c ClassStmt) (interface{}, error)
 }

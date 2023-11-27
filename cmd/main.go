@@ -11,7 +11,7 @@ import (
 	"github.com/reilandeubank/golox/pkg/parser"
 )
 
-// var hadError bool = false
+var i interpreter.Interpreter = interpreter.NewInterpreter()
 func main() {
 	args := os.Args[1:]
 
@@ -67,27 +67,16 @@ func run(source string) {
 	}
 
 	parser := parser.NewParser(tokens)
-	expression, err := parser.Parse()
+	statements, err := parser.Parse()
 	if err != nil {	// TODO: system.exit(65)
 		fmt.Println(err)
 		return
 	}
 
-	// fmt.Println(expression.String())
-
-	i := interpreter.NewInterpreter()
-	err = i.Interpret(expression)
+	err = i.Interpret(statements)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
 										// TODO: system.exit(70)
-
-
-
-	// // For now, just print the tokens
-	// for _, token := range tokens {
-	// 	fmt.Println(token.String())
-	// }
 }

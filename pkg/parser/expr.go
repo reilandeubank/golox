@@ -26,6 +26,7 @@ type Literal struct {
 func (l Literal) Accept(v ExprVisitor) (interface{}, error) {
 	return v.VisitLiteralExpr(l)
 }
+
 // Grouping
 
 // Grouping is a struct that implements the Expression interface
@@ -37,6 +38,7 @@ type Grouping struct {
 func (g Grouping) Accept(v ExprVisitor) (interface{}, error) {
 	return v.VisitGroupingExpr(g)
 }
+
 // Unary
 
 // Unary is a struct that implements the Expression interface
@@ -61,4 +63,16 @@ type Binary struct {
 // Accept() is a method that returns a string representation of the expression
 func (b Binary) Accept(v ExprVisitor) (interface{}, error) {
 	return v.VisitBinaryExpr(b)
+}
+
+// Variable
+
+// Variable is a struct that implements the Expression interface
+type Variable struct {
+	Name scanner.Token
+}
+
+// Accept() is a method that returns a string representation of the expression
+func (v Variable) Accept(vi ExprVisitor) (interface{}, error) {
+	return vi.VisitVariableExpr(v)
 }

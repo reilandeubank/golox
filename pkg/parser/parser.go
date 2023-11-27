@@ -58,6 +58,64 @@ func (p *Parser) expr() (Expression, error) {
 	return p.equality()
 }
 
+func (p *Parser) statement() (Stmt, error) {
+	if p.match(scanner.PRINT) {
+		return p.printStatement()
+	}
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() (Stmt, error) {
+	value, err := p.expr()
+	if err != nil {
+		return PrintStmt{Expression: Literal{Value: nil}}, err
+	}
+	_, err = p.consume(scanner.SEMICOLON, "Expect ';' after value.")
+	return PrintStmt{Expression: value}, err
+}
+
+func (p *Parser) varDeclaration() (Stmt, error) {
+	name, err := p.consume(scanner.IDENTIFIER, "Expect variable name.")
+	if err != nil {
+		return VarStmt{}, err
+	}
+	var initializer Expression
+	if p.match(scanner.EQUAL) {
+		initializer, err = p.expr()
+		if err != nil {
+			return VarStmt{}, err
+		}
+	}
+	_, err = p.consume(scanner.SEMICOLON, "Expect ';' after variable declaration.")
+	return VarStmt{Name: name, Initializer: initializer}, err
+}
+
+func (p *Parser) expressionStatement() (Stmt, error) {
+	value, err := p.expr()
+	if err != nil {
+		return ExprStmt{Expression: Literal{Value: nil}}, err
+	}
+	_, err = p.consume(scanner.SEMICOLON, "Expect ';' after value.")
+	return ExprStmt{Expression: value}, err
+}
+
+func (p *Parser) declaration() (Stmt, error) {
+	if p.match(scanner.VAR) {
+		declaration, err := p.varDeclaration()
+		if err != nil {
+			p.synchronize()
+			return VarStmt{}, err
+		}
+		return declaration, nil
+	}
+	stmt, err := p.statement()
+	if err != nil {
+		p.synchronize()
+		return ExprStmt{}, err
+	}
+	return stmt, nil
+}
+
 func (p *Parser) equality() (Expression, error) {
 	expr, err := p.comparison()
 	for p.match(scanner.BANG_EQUAL, scanner.EQUAL_EQUAL) {
@@ -137,6 +195,9 @@ func (p *Parser) primary() (Expression, error) {
 		}
 		return Literal{Value: nil, Type: scanner.NIL}, err
 	}
+	if p.match(scanner.IDENTIFIER) {
+		return Variable{Name: p.previous()}, nil
+	}
 	if p.match(scanner.LEFT_PAREN) {
 		expr, err := p.expr()
 		if err != nil {
@@ -158,11 +219,22 @@ func (p *Parser) consume(t scanner.TokenType, message string) (scanner.Token, er
 	return scanner.NewToken(scanner.OTHER, "", nil, 0), errors.New(message)
 }
 
-func (p *Parser) Parse() (Expression, error) {
-	expr, err := p.expr()
-	if err != nil {
-		return Literal{Value: nil}, err
+func (p *Parser) Parse() ([]Stmt, error) {
+	var statements []Stmt
+
+	for !p.isAtEnd() {
+		dec, err := p.declaration()
+		if err != nil {
+			return []Stmt{}, err
+		}
+		statements = append(statements, dec)
 	}
-	// _, err = p.consume(scanner.EOF, "Expect end of expression")
-	return expr, err
+
+	return statements, nil
+	// expr, err := p.expr()
+	// if err != nil {
+	// 	return Literal{Value: nil}, err
+	// }
+	// // _, err = p.consume(scanner.EOF, "Expect end of expression")
+	// return expr, err
 }

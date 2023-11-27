@@ -12,26 +12,26 @@ func ParseError(t scanner.Token, message string) {
 	}
 }
 
-// func (p *Parser) synchronize() {
-// 	p.advance()
+func (p *Parser) synchronize() {
+	p.advance()
 
-// 	for !p.isAtEnd() {
-// 		if p.previous().Type == scanner.SEMICOLON {
-// 			return
-// 		}
+	for !p.isAtEnd() {
+		if p.previous().Type == scanner.SEMICOLON {
+			return
+		}
 
-// 		switch p.peek().Type {
-// 		case scanner.CLASS:
-// 		case scanner.FUN:
-// 		case scanner.VAR:
-// 		case scanner.FOR:
-// 		case scanner.IF:
-// 		case scanner.WHILE:
-// 		case scanner.PRINT:
-// 		case scanner.RETURN:
-// 			return
-// 		}
+		switch p.peek().Type {
+		case scanner.CLASS:
+		case scanner.FUN:
+		case scanner.VAR:
+		case scanner.FOR:
+		case scanner.IF:
+		case scanner.WHILE:
+		case scanner.PRINT:
+		case scanner.RETURN:
+			return
+		}
 
-// 		p.advance()
-// 	}
-// }
+		p.advance()
+	}
+}
