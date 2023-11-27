@@ -43,7 +43,7 @@ func runPrompt() {
 	bufscanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print(">>>")
+		fmt.Print(">>> ")
 		if !bufscanner.Scan() {
 			break
 		}
