@@ -37,3 +37,36 @@ func (i *Interpreter) VisitVarStmt(varStmt parser.VarStmt) (interface{}, error) 
 func (i *Interpreter) VisitBlockStmt(blockStmt parser.BlockStmt) (interface{}, error) {
 	return i.executeBlock(blockStmt.Statements, NewEnvironmentWithEnclosing(*i.environment))
 }
+
+func (i *Interpreter) VisitIfStmt(ifStmt parser.IfStmt) (interface{}, error) {
+	condition, err := i.evaluate(ifStmt.Condition)
+	if err != nil {
+		return nil, err
+	}
+	if isTruthy(condition) {
+		return i.execute(ifStmt.ThenBranch)
+	} else if ifStmt.ElseBranch != nil {
+		return i.execute(ifStmt.ElseBranch)
+	}
+	return nil, nil
+}
+
+func (i *Interpreter) VisitWhileStmt(whileStmt parser.WhileStmt) (interface{}, error) {
+	for {
+		condition, err := i.evaluate(whileStmt.Condition)	// replaces normal for loop condition to allow for error handling
+		if err != nil {
+			return nil, err
+		}
+
+		if !isTruthy(condition) {
+			break
+		}
+
+		_, err = i.execute(whileStmt.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}

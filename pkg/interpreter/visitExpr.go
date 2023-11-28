@@ -118,3 +118,22 @@ func (i *Interpreter) VisitAssignExpr(expr parser.Assign) (interface{}, error) {
 	i.environment.assign(expr.Name, value)
 	return value, nil
 }
+
+func (i *Interpreter) VisitLogicalExpr(expr parser.Logical) (interface{}, error) {
+	left, err := i.evaluate(expr.Left)
+	if err != nil {
+		return nil, err
+	}
+
+	if expr.Operator.Type == scanner.OR {
+		if isTruthy(left) { // short-circuiting
+			return left, nil
+		}
+	} else {
+		if !isTruthy(left) { // short-circuiting
+			return left, nil
+		}
+	}
+
+	return i.evaluate(expr.Right)
+}

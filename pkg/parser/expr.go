@@ -89,3 +89,17 @@ type Assign struct {
 func (a Assign) Accept(v ExprVisitor) (interface{}, error) {
 	return v.VisitAssignExpr(a)
 }
+
+// Logical
+
+// Logical is a struct that implements the Expression interface
+type Logical struct {
+	Left     Expression
+	Operator scanner.Token
+	Right    Expression
+}
+
+// Accept() is a method that returns a string representation of the expression
+func (l Logical) Accept(v ExprVisitor) (interface{}, error) {
+	return v.VisitLogicalExpr(l)
+}

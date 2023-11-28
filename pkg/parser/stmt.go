@@ -40,3 +40,22 @@ type BlockStmt struct {
 func (b BlockStmt) Accept(visitor StmtVisitor) (interface{}, error) {
 	return visitor.VisitBlockStmt(b)
 }
+
+type IfStmt struct {
+	Condition  Expression
+	ThenBranch Stmt
+	ElseBranch Stmt
+}
+
+func (i IfStmt) Accept(visitor StmtVisitor) (interface{}, error) {
+	return visitor.VisitIfStmt(i)
+}
+
+type WhileStmt struct {
+	Condition Expression
+	Body      Stmt
+}
+
+func (w WhileStmt) Accept(visitor StmtVisitor) (interface{}, error) {
+	return visitor.VisitWhileStmt(w)
+}
