@@ -37,12 +37,17 @@ func (p *Parser) forStatement() (Stmt, error) {
 	var initializer Stmt
 	if p.match(scanner.SEMICOLON) {
 		initializer = nil
-	}
-	if p.match(scanner.VAR) {
+	} else if p.match(scanner.VAR) {
 		initializer, err = p.varDeclaration()
 		if err != nil {
 			return WhileStmt{}, err
 		}
+	} else {
+		initializer, err = p.expressionStatement()
+		if err != nil {
+			return WhileStmt{}, err
+		}
+	
 	}
 	var condition Expression
 	if !p.check(scanner.SEMICOLON) {

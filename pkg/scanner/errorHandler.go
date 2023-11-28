@@ -22,6 +22,6 @@ func LoxError(line int, message string) {
 }
 
 func Report(line int, where string, message string) {
-	fmt.Fprintf(os.Stderr, "[line %d] Error%s: %s\n", line, where, message)
+	fmt.Fprintf(os.Stderr, "[line %d] Parse Error%s: %s\n", line, where, message)
 	hadErrorFlag = true
 }

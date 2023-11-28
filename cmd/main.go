@@ -62,21 +62,21 @@ func run(source string) {
 	thisScanner := scanner.NewScanner(source)
 	tokens := thisScanner.ScanTokens()
 
-	if scanner.HadError() {	// TODO: system.exit(65)
+	if scanner.HadError() {
+		os.Exit(65)
 		return
 	}
 
 	parser := parser.NewParser(tokens)
 	statements, err := parser.Parse()
-	if err != nil {	// TODO: system.exit(65)
-		fmt.Println(err)
+	if err != nil {
+		os.Exit(65)
 		return
 	}
 
 	err = i.Interpret(statements)
 	if err != nil {
-		fmt.Println(err)
+		os.Exit(70)
 		return
 	}
-										// TODO: system.exit(70)
 }
