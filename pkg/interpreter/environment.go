@@ -10,7 +10,11 @@ type environment struct {
 }
 
 func NewEnvironment() environment {
-	return environment{values: make(map[string]interface{})}
+	return environment{enclosing: nil, values: make(map[string]interface{})}
+}
+
+func NewEnvironmentWithEnclosing(Enclosing environment) environment {
+	return environment{enclosing: &Enclosing, values: make(map[string]interface{})}
 }
 
 func (e *environment) define(name string, value interface{}) {
@@ -27,3 +31,13 @@ func (e *environment) get(name scanner.Token) (interface{}, error) {
 	return value, nil
 }
 
+func (e *environment) assign(name scanner.Token, value interface{}) error {
+	_, ok := e.values[name.Lexeme]
+	if !ok && e.enclosing != nil {
+		return e.enclosing.assign(name, value)
+	} else if !ok {
+		return &RuntimeError{Token: name, Message: "Undefined variable '" + name.Lexeme}
+	}
+	e.values[name.Lexeme] = value
+	return nil
+}

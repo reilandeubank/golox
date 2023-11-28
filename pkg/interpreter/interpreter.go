@@ -35,3 +35,19 @@ func (i *Interpreter) Interpret(statements []parser.Stmt) error {
 	}
 	return nil
 }
+
+func (i *Interpreter) executeBlock(statements []parser.Stmt, environment environment) (interface{}, error) {
+	previous := i.environment
+	defer func() {
+		i.environment = previous
+	}()
+
+	i.environment = &environment
+	for _, stmt := range statements {
+		_, err := i.execute(stmt)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return nil, nil
+}

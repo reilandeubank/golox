@@ -55,12 +55,15 @@ func (p *Parser) previous() scanner.Token {
 }
 
 func (p *Parser) expr() (Expression, error) {
-	return p.equality()
+	return p.assignment()
 }
 
 func (p *Parser) statement() (Stmt, error) {
 	if p.match(scanner.PRINT) {
 		return p.printStatement()
+	}
+	if p.match(scanner.LEFT_BRACE) {
+		return p.block()
 	}
 	return p.expressionStatement()
 }
@@ -97,6 +100,41 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	}
 	_, err = p.consume(scanner.SEMICOLON, "Expect ';' after value.")
 	return ExprStmt{Expression: value}, err
+}
+
+func (p *Parser) block() (Stmt, error) {
+	var statements []Stmt
+	for !p.check(scanner.RIGHT_BRACE) && !p.isAtEnd() {
+		dec, err := p.declaration()
+		if err != nil {
+			return nil, err
+		}
+		statements = append(statements, dec)
+	}
+	_, err := p.consume(scanner.RIGHT_BRACE, "Expect '}' after block.")
+	return BlockStmt{Statements: statements}, err
+}
+
+func (p *Parser) assignment() (Expression, error) {
+	expr, err := p.equality()
+	if err != nil {
+		return Literal{Value: nil}, err
+	}
+	if p.match(scanner.EQUAL) {
+		equals := p.previous()
+		value, err := p.assignment()
+		if err != nil {
+			return Literal{Value: nil}, err
+		}
+		if variable, ok := expr.(Variable); ok {
+			name := variable.Name
+			return Assign{Name: name, Value: value}, nil
+		}
+		message := "Invalid assignment target"
+		ParseError(equals, message)
+		return Literal{Value: nil}, errors.New(message)
+	}
+	return expr, nil
 }
 
 func (p *Parser) declaration() (Stmt, error) {

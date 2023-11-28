@@ -32,3 +32,11 @@ type VarStmt struct {
 func (v VarStmt) Accept(visitor StmtVisitor) (interface{}, error) {
 	return visitor.VisitVarStmt(v)
 }
+
+type BlockStmt struct {
+	Statements []Stmt
+}
+
+func (b BlockStmt) Accept(visitor StmtVisitor) (interface{}, error) {
+	return visitor.VisitBlockStmt(b)
+}

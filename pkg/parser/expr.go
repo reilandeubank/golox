@@ -76,3 +76,16 @@ type Variable struct {
 func (v Variable) Accept(vi ExprVisitor) (interface{}, error) {
 	return vi.VisitVariableExpr(v)
 }
+
+// Assignment
+
+// Assignment is a struct that implements the Expression interface
+type Assign struct {
+	Name  scanner.Token
+	Value Expression
+}
+
+// Accept() is a method that returns a string representation of the expression
+func (a Assign) Accept(v ExprVisitor) (interface{}, error) {
+	return v.VisitAssignExpr(a)
+}

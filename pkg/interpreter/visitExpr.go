@@ -108,3 +108,13 @@ func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error)
 func (i *Interpreter) VisitVariableExpr(variable parser.Variable) (interface{}, error) {
 	return i.environment.get(variable.Name)
 }
+
+func (i *Interpreter) VisitAssignExpr(expr parser.Assign) (interface{}, error) {
+	value, err := i.evaluate(expr.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	i.environment.assign(expr.Name, value)
+	return value, nil
+}

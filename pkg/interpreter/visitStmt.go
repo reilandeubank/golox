@@ -33,3 +33,7 @@ func (i *Interpreter) VisitVarStmt(varStmt parser.VarStmt) (interface{}, error) 
 	i.environment.define(varStmt.Name.Lexeme, value)
 	return nil, nil
 }
+
+func (i *Interpreter) VisitBlockStmt(blockStmt parser.BlockStmt) (interface{}, error) {
+	return i.executeBlock(blockStmt.Statements, NewEnvironmentWithEnclosing(*i.environment))
+}
