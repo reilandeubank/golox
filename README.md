@@ -6,7 +6,7 @@ used in the book Crafting Interpreters by Robert Nystrom
 This interpreter is feature complete through Chapter 10
 of Crafting Interpreters, meaning it implements variables, 
 printing, loops, control flow, and functions (complete with
-working return statements and control flow)
+working return statements and control flow). Does NOT include variable resolution, classes, or inheritence <sub>(yuck)</sub>
 
 # Instructions
 
