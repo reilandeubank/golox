@@ -103,3 +103,17 @@ type Logical struct {
 func (l Logical) Accept(v ExprVisitor) (interface{}, error) {
 	return v.VisitLogicalExpr(l)
 }
+
+// Call
+
+// Call is a struct that implements the Expression interface
+type Call struct {
+	Callee    Expression
+	Paren     scanner.Token
+	Arguments []Expression
+}
+
+// Accept() is a method that returns a string representation of the expression
+func (c Call) Accept(v ExprVisitor) (interface{}, error) {
+	return v.VisitCallExpr(c)
+}

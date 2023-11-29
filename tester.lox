@@ -1,8 +1,37 @@
-var a = 0;
-var temp;
-
-for (var b = 1; a < 10000; b = temp + b) {
-  print a;
-  temp = a;
-  a = b;
+// Define a recursive factorial function
+fun factorial(n) {
+  if (n == 0) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
 }
+
+// Test the factorial function
+print factorial(5); // 120
+print "Expected: 120";
+
+// Demonstrate closure
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    return i;
+  }
+  return count;
+}
+
+// Create a counter and test it
+var counter = makeCounter();
+print counter(); // 1
+print "Expected: 1";
+print counter(); // 2
+print "Expected: 2";
+
+// Simple function to test return statements
+fun testReturn() {
+  return "Function returned successfully.";
+}
+
+print testReturn(); // Function returned successfully.
+print "Expected: Function returned successfully.";

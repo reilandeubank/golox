@@ -70,3 +70,22 @@ func (i *Interpreter) VisitWhileStmt(whileStmt parser.WhileStmt) (interface{}, e
 
 	return nil, nil
 }
+
+func (i *Interpreter) VisitFunctionStmt(functionStmt parser.FunctionStmt) (interface{}, error) {
+	function := LoxFunction{Declaration: functionStmt, Closure: i.environment, IsInitializer: false}
+	i.environment.define(functionStmt.Name.Lexeme, function)
+	return nil, nil
+}
+
+func (i *Interpreter) VisitReturnStmt(returnStmt parser.ReturnStmt) (interface{}, error) {
+	var value interface{}
+	var err error
+	if returnStmt.Value != nil {
+		value, err = i.evaluate(returnStmt.Value)
+		if err != nil {
+			return nil, err
+		}
+	}
+	panic(&ReturnError{Value: value})
+	//return returnStmt, nil
+}

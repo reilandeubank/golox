@@ -8,7 +8,7 @@ type ExprVisitor interface {
 	VisitVariableExpr(v Variable) (interface{}, error)
 	VisitAssignExpr(a Assign) (interface{}, error)
 	VisitLogicalExpr(l Logical) (interface{}, error)
-	//VisitCallExpr(c Call) (interface{}, error)
+	VisitCallExpr(c Call) (interface{}, error)
 	// VisitGetExpr(g Get) (interface{}, error)
 	// VisitSetExpr(s Set) (interface{}, error)
 	// VisitThisExpr(t This) (interface{}, error)
@@ -22,7 +22,7 @@ type StmtVisitor interface {
 	VisitBlockStmt(b BlockStmt) (interface{}, error)
 	VisitIfStmt(i IfStmt) (interface{}, error)
 	VisitWhileStmt(w WhileStmt) (interface{}, error)
-	// VisitFunStmt(f FunStmt) (interface{}, error)
-	// VisitReturnStmt(r ReturnStmt) (interface{}, error)
+	VisitFunctionStmt(f FunctionStmt) (interface{}, error)
+	VisitReturnStmt(r ReturnStmt) (interface{}, error)
 	// VisitClassStmt(c ClassStmt) (interface{}, error)
 }

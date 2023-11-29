@@ -2,7 +2,7 @@ package interpreter
 
 import (
 	"reflect"
-
+	"fmt"
 	"github.com/reilandeubank/golox/pkg/parser"
 	"github.com/reilandeubank/golox/pkg/scanner"
 )
@@ -136,4 +136,30 @@ func (i *Interpreter) VisitLogicalExpr(expr parser.Logical) (interface{}, error)
 	}
 
 	return i.evaluate(expr.Right)
+}
+
+func (i *Interpreter) VisitCallExpr(expr parser.Call) (interface{}, error) {
+	callee, err := i.evaluate(expr.Callee)
+	if err != nil {
+		return nil, err
+	}
+
+	arguments := make([]interface{}, len(expr.Arguments))
+	for j, argument := range expr.Arguments {
+		arguments[j], err = i.evaluate(argument)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	function, ok := callee.(LoxCallable)
+	if !ok {
+		return nil, &RuntimeError{Token: expr.Paren, Message: "Can only call functions and classes."}
+	}
+
+	if len(arguments) != function.Arity() {
+		return nil, &RuntimeError{Token: expr.Paren, Message: "Expected " + fmt.Sprint(function.Arity()) + " arguments but got " + fmt.Sprint(len(arguments)) + "."}
+	}
+
+	return function.Call(i, arguments)
 }

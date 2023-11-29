@@ -9,13 +9,15 @@ import (
 )
 
 type Interpreter struct{
-	//globals *environment
+	globals *environment
 	environment *environment
 }
 
 func NewInterpreter() Interpreter {
 	env := NewEnvironment()
-	return Interpreter{environment: &env}
+	global := NewEnvironment()
+	global.define("clock", &clock{})
+	return Interpreter{environment: &env, globals: &global}
 }
 
 func (i *Interpreter) execute(stmt parser.Stmt) (interface{}, error) {

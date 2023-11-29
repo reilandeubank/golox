@@ -59,3 +59,22 @@ type WhileStmt struct {
 func (w WhileStmt) Accept(visitor StmtVisitor) (interface{}, error) {
 	return visitor.VisitWhileStmt(w)
 }
+
+type FunctionStmt struct {
+	Name        scanner.Token
+	Params      []scanner.Token
+	Body        []Stmt
+}
+
+func (f FunctionStmt) Accept(visitor StmtVisitor) (interface{}, error) {
+	return visitor.VisitFunctionStmt(f)
+}
+
+type ReturnStmt struct {
+	Keyword scanner.Token
+	Value   Expression
+}
+
+func (r ReturnStmt) Accept(visitor StmtVisitor) (interface{}, error) {
+	return visitor.VisitReturnStmt(r)
+}

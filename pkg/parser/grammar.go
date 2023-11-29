@@ -20,11 +20,18 @@ func (p *Parser) statement() (Stmt, error) {
 	if p.match(scanner.PRINT) {
 		return p.printStatement()
 	}
+	if p.match(scanner.RETURN) {
+		return p.returnStatement()
+	}
 	if p.match(scanner.WHILE) {
 		return p.whileStatement()
 	}
 	if p.match(scanner.LEFT_BRACE) {
-		return p.block()
+		statements, err := p.block()
+		if err != nil {
+			return BlockStmt{}, err
+		}
+		return BlockStmt{Statements: statements}, nil
 	}
 	return p.expressionStatement()
 }
@@ -140,6 +147,20 @@ func (p *Parser) varDeclaration() (Stmt, error) {
 	return VarStmt{Name: name, Initializer: initializer}, err
 }
 
+func (p *Parser) returnStatement() (Stmt, error) {
+	keyword := p.previous()
+	var value Expression
+	if !p.check(scanner.SEMICOLON) {
+		var err error
+		value, err = p.expr()
+		if err != nil {
+			return ReturnStmt{}, err
+		}
+	}
+	_, err := p.consume(scanner.SEMICOLON, "Expect ';' after return value.")
+	return ReturnStmt{Keyword: keyword, Value: value}, err
+}
+
 func (p *Parser) whileStatement() (Stmt, error) {
 	_, err := p.consume(scanner.LEFT_PAREN, "Expect '(' after 'while'.")
 	if err != nil {
@@ -169,7 +190,48 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	return ExprStmt{Expression: value}, err
 }
 
-func (p *Parser) block() (Stmt, error) {
+func (p *Parser) function(kind string) (Stmt, error) {
+	name, err := p.consume(scanner.IDENTIFIER, "Expect "+kind+" name.")
+	if err != nil {
+		return FunctionStmt{}, err
+	}
+	_, err = p.consume(scanner.LEFT_PAREN, "Expect '(' after "+kind+" name.")
+	if err != nil {
+		return FunctionStmt{}, err
+	}
+	var parameters []scanner.Token
+	if !p.check(scanner.RIGHT_PAREN) {
+		for {
+			if len(parameters) >= 255 {
+				message := "Cannot have more than 255 parameters."
+				ParseError(p.peek(), message)
+			}
+			param, err := p.consume(scanner.IDENTIFIER, "Expect parameter name.")
+			if err != nil {
+				return FunctionStmt{}, err
+			}
+			parameters = append(parameters, param)
+			if !p.match(scanner.COMMA) {
+				break
+			}
+		}
+	}
+	_, err = p.consume(scanner.RIGHT_PAREN, "Expect ')' after parameters.")
+	if err != nil {
+		return FunctionStmt{}, err
+	}
+	_, err = p.consume(scanner.LEFT_BRACE, "Expect '{' before "+kind+" body.")
+	if err != nil {
+		return FunctionStmt{}, err
+	}
+	body, err := p.block()
+	if err != nil {
+		return FunctionStmt{}, err
+	}
+	return FunctionStmt{Name: name, Params: parameters, Body: body}, nil
+}
+
+func (p *Parser) block() ([]Stmt, error) {
 	var statements []Stmt
 	for !p.check(scanner.RIGHT_BRACE) && !p.isAtEnd() {
 		dec, err := p.declaration()
@@ -179,7 +241,7 @@ func (p *Parser) block() (Stmt, error) {
 		statements = append(statements, dec)
 	}
 	_, err := p.consume(scanner.RIGHT_BRACE, "Expect '}' after block.")
-	return BlockStmt{Statements: statements}, err
+	return statements, err
 }
 
 func (p *Parser) assignment() (Expression, error) {
@@ -231,6 +293,9 @@ func (p *Parser) and() (Expression, error) {
 }
 
 func (p *Parser) declaration() (Stmt, error) {
+	if p.match(scanner.FUN) {
+		return p.function("function")
+	}
 	if p.match(scanner.VAR) {
 		declaration, err := p.varDeclaration()
 		if err != nil {
@@ -297,7 +362,41 @@ func (p *Parser) unary() (Expression, error) {
 		right, err := p.unary()
 		return Unary{Operator: operator, Right: right}, err
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) finishCall(callee Expression) (Expression, error) {
+	var arguments []Expression
+	if !p.check(scanner.RIGHT_PAREN) {
+		for {
+			if len(arguments) >= 255 {
+				message := "Cannot have more than 255 arguments."
+				ParseError(p.peek(), message)
+			}
+			argument, err := p.expr()
+			if err != nil {
+				return Literal{Value: nil}, err
+			}
+			arguments = append(arguments, argument)
+			if !p.match(scanner.COMMA) {
+				break
+			}
+		}
+	}
+	paren, err := p.consume(scanner.RIGHT_PAREN, "Expect ')' after arguments.")
+	return Call{Callee: callee, Paren: paren, Arguments: arguments}, err
+}
+
+func (p *Parser) call() (Expression, error) {
+	expr, err := p.primary()
+	for {
+		if p.match(scanner.LEFT_PAREN) {
+			expr, err = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
+	return expr, err
 }
 
 func (p *Parser) primary() (Expression, error) {
