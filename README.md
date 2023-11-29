@@ -26,14 +26,17 @@ or into ```path/to/directory``` using
 $ git clone https://github.com/reilandeubank/golox path/to/directory
 ```
 
-## Use
+## Compiling
 First, move into the ```golox``` directory that was just created
 
-From here, you can compile an executable ```./main``` in ```/cmd```. 
+From here, you can use the ```make``` command to compile the interpreter into the executable ```./main``` in the current directory.
+
+Alternatively, you can compile an executable ```./main``` in the current directory. 
 ```
-go build cmd/main.go
+$ go build cmd/main.go
 ```
 
+## Usage
 Usage for the interpreter is
 ```
 $ ./main
@@ -43,3 +46,4 @@ to start a REPL or
 $ ./main file.lox
 ```
 to run ```file.lox```
+
