@@ -139,7 +139,7 @@ func (i *Interpreter) VisitLogicalExpr(expr parser.Logical) (interface{}, error)
 }
 
 func (i *Interpreter) VisitCallExpr(expr parser.Call) (interface{}, error) {
-	callee, err := i.evaluate(expr.Callee)
+	callee, err := expr.Callee.Accept(i)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (i *Interpreter) VisitCallExpr(expr parser.Call) (interface{}, error) {
 
 	function, ok := callee.(LoxCallable)
 	if !ok {
-		return nil, &RuntimeError{Token: expr.Paren, Message: "Can only call functions and classes."}
+		return nil, &RuntimeError{Token: expr.Paren, Message: "Can only call functions."}
 	}
 
 	if len(arguments) != function.Arity() {

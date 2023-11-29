@@ -1,7 +1,7 @@
 package interpreter
 
 import (
-	//"fmt"
+	// "fmt"
 	//"reflect"
 
 	"github.com/reilandeubank/golox/pkg/parser"
@@ -14,10 +14,10 @@ type Interpreter struct{
 }
 
 func NewInterpreter() Interpreter {
-	env := NewEnvironment()
 	global := NewEnvironment()
 	global.define("clock", &clock{})
-	return Interpreter{environment: &env, globals: &global}
+	global.define("toStr", &toStr{})
+	return Interpreter{environment: &global, globals: &global}
 }
 
 func (i *Interpreter) execute(stmt parser.Stmt) (interface{}, error) {

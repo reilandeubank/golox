@@ -76,6 +76,7 @@ func run(source string) {
 
 	err = i.Interpret(statements)
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(70)
 		return
 	}

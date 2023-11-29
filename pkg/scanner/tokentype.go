@@ -43,8 +43,6 @@ const (
 	OR
 	PRINT
 	RETURN
-	SUPER
-	THIS
 	TRUE
 	VAR
 	WHILE

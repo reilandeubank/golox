@@ -2,12 +2,14 @@ package interpreter
 
 import (
 	"time"
+	"fmt"
 	"github.com/reilandeubank/golox/pkg/parser"
 )
 
 type LoxCallable interface {
 	Arity() int
 	Call(i *Interpreter, arguments []interface{}) (interface{}, error)
+	String() string
 }
 
 type clock struct{}
@@ -21,6 +23,20 @@ func (c *clock) Call(i *Interpreter, arguments []interface{}) (interface{}, erro
 }
 
 func (c clock) String() string {
+	return "<native fn>"
+}
+
+type toStr struct{}
+
+func (t *toStr) Arity() int {
+	return 1
+}
+
+func (t *toStr) Call(i *Interpreter, arguments []interface{}) (interface{}, error) {
+	return fmt.Sprintf("%v", arguments[0]), nil
+}
+
+func (t toStr) String() string {
 	return "<native fn>"
 }
 
