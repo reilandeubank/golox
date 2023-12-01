@@ -1,4 +1,4 @@
-# golox: a lox interpreter written in Go
+# golox: a lox tree-walk interpreter written in Go
  
 This is a working interpreter of the Lox language, as
 used in the book Crafting Interpreters by Robert Nystrom
