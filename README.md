@@ -8,7 +8,7 @@ of Crafting Interpreters, meaning it implements variables,
 printing, loops, control flow, and functions (complete with
 working return statements and control flow). Does NOT include variable resolution, classes, or inheritence <sub>(yuck)</sub>
 
-Current native functions include: clock(), and toStr(number)
+Current native functions include: ```clock()```, and ```toStr(number)```
 
 # Instructions
 
