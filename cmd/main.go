@@ -19,7 +19,11 @@ func main() {
 		fmt.Println("Usage: golox [script]")
 		os.Exit(64)
 	} else if len(args) == 1 {
-		runFile(args[0])
+		err := runFile(args[0])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(64)
+		}
 	} else {
 		runPrompt()
 	}

@@ -115,6 +115,14 @@ fun makeAdder(x) {
 var addFive = makeAdder(5);
 assertEquals(8, addFive(3));
 
+print "";
+print "Testing Precedence";
+assertEquals(14, 2 + 3 * 4);
+assertEquals(4, 2 + 6 / 3);
+assertEquals(true, false == 1 > 2);
+assertEquals(true, false == 2 <= 1);
+assertEquals(4, (2 * (6 - (2 + 2))));
+
 if (testFailed > 0) {
     print "";
     print toStr(testFailed) + " tests FAILED";

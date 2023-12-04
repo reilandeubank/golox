@@ -11,7 +11,7 @@ build:
 	go build -o $(TARGET) cmd/main.go
 
 run:
-	./$(TARGET) tester.lox
+	./$(TARGET) testing/tester.lox
 
 clean:
 	rm $(TARGET)

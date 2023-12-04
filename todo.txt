@@ -1,4 +1,0 @@
-need to add a description of the project along with any pitfalls/problems i had and
-their workarounds, and maybe include classes if needed
-
-also, include .txt output of the tests, and possibly integrate book test cases
