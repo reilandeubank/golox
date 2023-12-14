@@ -35,10 +35,14 @@ func runFile(path string) error {
 		return err
 	}
 
-	run(string(bytes))
+	err = run(string(bytes))
 
 	if scanner.HadError() {
 		os.Exit(65)
+	}
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(70)
 	}
 	return nil
 }
@@ -62,26 +66,21 @@ func runPrompt() {
 	}
 }
 
-func run(source string) {
+func run(source string) error {
 	thisScanner := scanner.NewScanner(source)
 	tokens := thisScanner.ScanTokens()
 
-	if scanner.HadError() {
-		os.Exit(65)
-		return
-	}
-
 	parser := parser.NewParser(tokens)
 	statements, err := parser.Parse()
+
 	if err != nil {
-		os.Exit(65)
-		return
+		return err
 	}
 
 	err = i.Interpret(statements)
 	if err != nil {
-		fmt.Println(err)
 		os.Exit(70)
-		return
+		return err
 	}
+	return nil
 }

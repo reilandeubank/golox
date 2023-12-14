@@ -40,7 +40,7 @@ func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	right, _ := i.evaluate(binary.Right)
+	right, err := i.evaluate(binary.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (i *Interpreter) VisitBinaryExpr(binary parser.Binary) (interface{}, error)
 		if reflect.TypeOf(left) == reflect.TypeOf(0.0) && reflect.TypeOf(right) == reflect.TypeOf(0.0) {
 			return left.(float64) + right.(float64), nil
 		}
-		return nil, &RuntimeError{Token: binary.Operator, Message: "Operands must be two numbers or two strings"}
+		return nil, err
 	case scanner.GREATER:
 		err = checkNumberOperands(binary.Operator, left, right)
 		if err != nil {
